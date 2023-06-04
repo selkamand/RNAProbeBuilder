@@ -72,5 +72,7 @@ single probes. If you know in advanced what isoforms you care about -
 simply filter the output of probes_prepare_input_from_vep() to include
 only those isoforms
 
-**Q: What variant types are supported** A: Currently just SNVs and
-Indels. No fusions or large deletions supported
+**Q: What variant types are supported**
+
+A: Currently just SNVs and Indels. No fusions or large deletions
+supported
