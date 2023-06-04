@@ -9,6 +9,7 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/RNAProbeBuilder)](https://CRAN.R-project.org/package=RNAProbeBuilder)
+[![R-CMD-check](https://github.com/selkamand/RNAProbeBuilder/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/selkamand/RNAProbeBuilder/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 RNAProbeBuilder lets you input mutations in mRNA space and produces
