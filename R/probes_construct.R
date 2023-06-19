@@ -343,7 +343,7 @@ probes_write_output <- function(df_mut, outdir, prefix = "probes"){
   # Create Fasta File
   path_fasta = paste0(outdir, "/", prefix, '.fasta')
   cli::cli_alert_info('Writing to {path_fasta}')
-  file.create(path_fasta, overwrite = TRUE)
+  file.create(path_fasta)
 
   sequences <- df_mut[['probe_sequence']]
   names(sequences) <- df_mut[['ID']]
