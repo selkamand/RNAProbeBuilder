@@ -38,6 +38,9 @@ probes_read_vep_txt <- function(txt, transcript_type = c("ensembl", 'refseq'), e
     df <- df[!grepl(x = df[['HGVSc']], pattern = ":n\\."), ]
   }
 
+  # Exclude anything Noncoding
+  df <- df[df[['cDNA_position']] != "-", ]
+
   # Fix cDNA position (split into multiple)
   df <- df |>
     dplyr::mutate(
