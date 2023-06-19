@@ -28,9 +28,9 @@ status](https://www.r-pkg.org/badges/version/RNAProbeBuilder)](https://CRAN.R-pr
 
 <!-- badges: end -->
 
-RNAProbeBuilder lets you input mutations in mRNA space and produces
-mutant and wildtype mRNA sequences that could be used to probe the
-sequences in supported experimental systems
+RNAProbeBuilder constructs probes for targeting RNA mutations. At least
+two probes are generated per mutation, one targeted to the mutant, one
+targeting wildtype sequences. Probes are all built in cDNA space.
 
 **WARNING**: This package is in *very early development* and not ready
 for use yet!!!
@@ -49,22 +49,23 @@ devtools::install_github("selkamand/RNAProbeBuilder")
 
 ### **1 \| Prepare Inputs:**
 
-Prepare a VEP Text of mutations you're interested in.
+RNAProbeBuilder probe designs are based on cDNA HGVS notation. Start by
+taking your list of mutations, and annotate it using
+[VEP](https://asia.ensembl.org/Tools/VEP) annotate impacts in cDNA space
+(importantly this retrieves the impact across all isoforms of a
+transcript)
 
-Use a tool like VEP to obtain coding HGVS notation representing the
-mutation in coding mRNA space (importantly this retrieves the impact
-across all isoforms of a transcript. Ensure to report all hits not just
-those in the 'canonical' transcript.
+Use the online / offline VEP (latest
+[hg38](https://asia.ensembl.org/Tools/VEP) or
+[hg37](https://grch37.ensembl.org/Homo_sapiens/Tools/VEP) cache are a
+good choice)
 
-Use the online / offline VEP (latest hg38 or hg37 cache are a good
-choice)
-
-You annotaitons should include HGVS notation like the following:
+You annotations should include cDNA HGVS notation like the following:
 NM_004006.2:c.4375C\>T
 
 (transcript:c.positionRef\>Alt)
 
-**Vep Options**
+**Configuring VEP**
 
 ![](inst/figs/VepConfig.png)
 
@@ -75,11 +76,13 @@ NM_004006.2:c.4375C\>T
 -   Transcript Database
     -   Ensembl[/GENCODE]{.underline} transcripts
 
-**Vep Download**
+**Downloading Results**
 
 Download / save all results in TXT format
 
 ![](inst/figs/DownloadVepResults.png)
+
+This downloaded text file will serve as the input to
 
 ### 2 \| Connect to biomaRt
 
@@ -106,25 +109,20 @@ probes_read_vep_txt("path_to_vep_text", ensembl=ensembl) |> # Read in Probe data
 
 ## FAQ
 
-**Q: My mutations are in genomic coordinates. How do I get mutations in
-mRNA HGVS notation**
-
-A: Run VEP (see working with genomic inputs vignette)
-
 **Q: My mutation may affect multiple isoforms? How do i handle this?**
 
-A: The `probes_prepare_input_from_vep()` function will, by default,
-produce a vector with the impact for EVERY isoform in the annotation
-used by VEP. So when you pipe this into `probes_construct()` you'll get
-one probe per isoform hit, NOT 1 probe per genomic mutation.
+A: By default, VEP describes the impact of mutations for EVERY isoform
+in the annotations Ensembl/Gencode. `probes_read_vep_txt()` parses
+isoform level impacts, and `probes_construct()` creates one WT/Mut pair
+of probes per isoform hit, NOT 1 probe per genomic mutation.
 
 Where probes for multiple mutant isoforms would have identical
 sequences, `probes_collapse_duplicates()` will collapse these into
-single probes. If you know in advanced what isoforms you care about -
-simply filter the output of probes_prepare_input_from_vep() to include
+single probe pairs. If you know in advanced what isoforms you care
+about - simply filter the output of `probes_read_vep_txt()` to include
 only those isoforms
 
 **Q: What variant types are supported**
 
-A: Currently just SNVs and Indels. No fusions or large deletions
+A: Currently just SNVs and Dups. No Indels, fusions or large deletions
 supported
