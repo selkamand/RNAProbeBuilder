@@ -25,7 +25,6 @@ default_biomart <- function(){
 #'
 #' @return By default, returns a gene database from the latest ensembl hg38/hg37 biomart
 #' @export
-#'
 load_biomart <- function(GRCh = c("38", "37")){
   GRCh <- rlang::arg_match(GRCh)
   biomaRt::useEnsembl(biomart="ensembl", dataset="hsapiens_gene_ensembl", GRCh = GRCh)

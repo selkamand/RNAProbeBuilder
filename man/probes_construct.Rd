@@ -6,15 +6,15 @@
 \usage{
 probes_construct(
   df_mut,
+  ensembl,
   probe_size = 51,
-  probe_type = c("cDNA", "mRNA", "mRNA_no_U"),
-  ensembl = default_biomart()
+  probe_type = c("cDNA", "mRNA", "mRNA_no_U")
 )
 }
 \arguments{
-\item{probe_type}{which type of probe sequence to return (cDNA, mRNA, mRNA_no_U)}
+\item{ensembl}{biomart from which to fetch transcript (cDNA)  sequences. Define using \code{\link[=load_biomart]{load_biomart()}}}
 
-\item{ensembl}{biomart from which to fetch transcript (cDNA)  sequences}
+\item{probe_type}{which type of probe sequence to return (cDNA, mRNA, mRNA_no_U)}
 
 \item{mutations}{(data.frame)}
 }

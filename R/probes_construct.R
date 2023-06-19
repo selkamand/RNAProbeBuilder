@@ -18,8 +18,10 @@ probes_read_vep_txt <- function(txt, transcript_type = c("ensembl", 'refseq'), e
 
   #browser()
   df <- df_vep |>
-    dplyr::select(VarID = `X.Uploaded_variation`, Gene, HGVSc, Transcript = Feature, Feature_type, cDNA_position, CDS_position)
+    dplyr::select(VarID = `X.Uploaded_variation`, Gene, Location, Allele, HGVSc, Transcript = Feature, Feature_type, cDNA_position, CDS_position)
 
+  # Fix VarID if '.'
+  df[['VarID']] <- ifelse(df[['VarID']] == ".", yes = paste0(df[['Location']],':',df[['Allele']]), no = df[['VarID']])
 
   # Drop non-transcript features
   df <- df |>
@@ -60,7 +62,7 @@ probes_read_vep_txt <- function(txt, transcript_type = c("ensembl", 'refseq'), e
 #'
 #' @param mutations (data.frame)
 #' @param probe_type which type of probe sequence to return (cDNA, mRNA, mRNA_no_U)
-#' @param ensembl biomart from which to fetch transcript (cDNA)  sequences
+#' @param ensembl biomart from which to fetch transcript (cDNA)  sequences. Define using [load_biomart()]
 #'
 #' @return data.frame describing 1 probe per mutation-transcript isoform combination.
 #' Try piping into probes_collapse_duplicates to cleanup
@@ -90,7 +92,7 @@ probes_read_vep_txt <- function(txt, transcript_type = c("ensembl", 'refseq'), e
 #'
 #'Dmut = Downstream bases (mutant probe) = floor((Ts-L)/2)
 #'
-probes_construct <- function(df_mut, probe_size = 51, probe_type = c('cDNA', 'mRNA','mRNA_no_U'), ensembl = default_biomart()){
+probes_construct <- function(df_mut, ensembl, probe_size = 51, probe_type = c('cDNA', 'mRNA','mRNA_no_U')){
 
   # Assertions
   assertions::assert_dataframe(df_mut)
@@ -297,7 +299,7 @@ mutate_seq_dup_scalar <- function(sequence, position){
 #' @return Duplicate probes collapsed into single probes (data.frame)
 #' @export
 #'
-probes_collapse_duplicate <- function(df_mut){
+probes_collapse_duplicates <- function(df_mut){
   # Remove Redundant (identical) probes
   df_mut <- df_mut |>
     dplyr::group_by(probe_mut_seq) |>
@@ -316,8 +318,6 @@ probes_collapse_duplicate <- function(df_mut){
     df_redundant_variants <- df_mut[df_mut[['nVariants']] > 1, c('VarID', 'Transcript', 'cDNA_position', 'ref', 'alt', 'probe_wt_seq')]
   }
 
-  df_mut <- probes_longform_with_ids(df_mut)
-
   return(df_mut)
 }
 
@@ -333,7 +333,8 @@ probes_longform_with_ids <- function(df_mut){
 }
 
 probes_write_output <- function(df_mut, outdir, prefix = "probes"){
-  #browser()
+  df_mut <- probes_longform_with_ids(df_mut)
+
   # Create Dir
   if(!dir.exists(outdir)) {
     dir.create(outdir)
@@ -359,9 +360,8 @@ probes_write_output <- function(df_mut, outdir, prefix = "probes"){
   # Create Output Table
   path_info = paste0(outdir, "/", prefix, '.csv')
   cli::cli_alert_info('Writing to {path_info}')
-  #file.create(path_info, overwrite = TRUE)
+
   write.csv(df_mut, file = path_info, row.names = FALSE)
-  ##seqinr::write.fasta(sequences = sequences, names = df_mut[['ID']], file.out = path_fasta, as.string = TRUE)
 
 
 
