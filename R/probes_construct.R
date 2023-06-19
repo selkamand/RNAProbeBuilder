@@ -53,7 +53,7 @@ probes_read_vep_txt <- function(txt, transcript_type = c("ensembl", 'refseq'), e
 }
 
 
-#'
+#' Construct Probes
 #'
 #' @param mutations (data.frame)
 #' @param probe_type which type of probe sequence to return (cDNA, mRNA, mRNA_no_U)
@@ -86,7 +86,6 @@ probes_read_vep_txt <- function(txt, transcript_type = c("ensembl", 'refseq'), e
 #'Umut = Upstream bases (mutant probe) = ceil((Ts-L)/2)
 #'
 #'Dmut = Downstream bases (mutant probe) = floor((Ts-L)/2)
-#'
 #'
 probes_construct <- function(df_mut, probe_size = 51, probe_type = c('cDNA', 'mRNA','mRNA_no_U'), ensembl = default_biomart()){
 
