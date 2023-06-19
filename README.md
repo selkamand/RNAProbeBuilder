@@ -88,8 +88,11 @@ probes_read_vep_txt("path_to_vep_text", ensembl=ensembl) |> # Read in Probe data
   probes_construct( # Constructs 1 probe for each mrna mutation
     bp_upstream = 20, 
     bp_downstream = 20,
-    probe_type = "mRNA_no_U" # build cDNA probes setting to 'cDNA'
-  ) 
+    probe_type = "cDNA" # only cDNA supported for now
+  )  |>
+  probes_collapse_duplicates() |> # Collapse probes 
+  probes_write_output(outdir = "Outdir", prefix = "myprobes") # Write FASTA / QC files
+  
 ```
 
 ## FAQ
