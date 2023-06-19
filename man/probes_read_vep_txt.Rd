@@ -2,7 +2,7 @@
 % Please edit documentation in R/probes_construct.R
 \name{probes_read_vep_txt}
 \alias{probes_read_vep_txt}
-\title{Title}
+\title{Parse Vep annotated text file}
 \usage{
 probes_read_vep_txt(
   txt,
@@ -12,8 +12,17 @@ probes_read_vep_txt(
 )
 }
 \arguments{
-\item{minimal_columns}{}
+\item{txt}{path to vep annotated text files}
+
+\item{transcript_type}{Whether to use ensembl or refseq transcripts}
+
+\item{exclude_noncoding_rna}{Should non-coding RNA mutations be excluded}
+
+\item{minimal_columns}{Return only the minimal set of columns required}
+}
+\value{
+data.frame describing each vep mutation
 }
 \description{
-Title
+Read Mutations to build probes from in vep text File
 }

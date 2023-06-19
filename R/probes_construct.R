@@ -260,14 +260,16 @@ mutate_seq_snv <- function(sequence, position, ref, alt){
 }
 
 mutate_seq_snv_scalar <- function(sequence, position, ref, alt){
- sequence = Biostrings::DNAString(sequence)
+# sequence = Biostrings::DNAString(sequence)
 
  # Assert Ref Match
  ref_base_at_index <- substr(sequence, position, position)
  assertions::assert(ref_base_at_index == ref, msg = "Base {position} in reference sequence is a '{ref_base_at_index}', not '{ref}': {sequence} ")
 
- mutated <- Biostrings::replaceLetterAt(x = sequence,at = position,letter = alt)
- return(as.character(mutated))
+ mutated <- sequence
+ substr(mutated, start = position, stop = position) <- alt
+ #mutated <- Biostrings::replaceLetterAt(x = sequence,at = position,letter = alt)
+ return(mutated)
 }
 
 mutate_seq_dup <- function(sequence, position){
@@ -288,12 +290,11 @@ mutate_seq_dup_scalar <- function(sequence, position){
 #' Collapse duplicates
 #'
 #'
-#' @param df_mut
+#' @param df_mut output from [probes_construct()]
 #'
-#' @return
+#' @return Duplicate probes collapsed into single probes (data.frame)
 #' @export
 #'
-#' @examples
 probes_collapse_duplicate <- function(df_mut){
   # Remove Redundant (identical) probes
   df_mut <- df_mut |>
