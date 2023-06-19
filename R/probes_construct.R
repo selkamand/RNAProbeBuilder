@@ -332,6 +332,15 @@ probes_longform_with_ids <- function(df_mut){
     )
 }
 
+#' Write outputs
+#'
+#' @param df_mut output of probes_collapse_duplicates (data.frame)
+#' @param outdir output directory
+#' @param prefix prefix for filenames (default = 'probes')
+#'
+#' @return invisibly returns longform probe dataframe
+#' @export
+#'
 probes_write_output <- function(df_mut, outdir, prefix = "probes"){
   df_mut <- probes_longform_with_ids(df_mut)
 
@@ -364,5 +373,5 @@ probes_write_output <- function(df_mut, outdir, prefix = "probes"){
   write.csv(df_mut, file = path_info, row.names = FALSE)
 
 
-
+  return(invisible(df_mut))
 }
