@@ -15,8 +15,13 @@ RoxygenNote: 7.2.3
 Imports: 
     assertions,
     biomaRt,
+    Biostrings,
     cli,
     dplyr,
+    ggiraph,
+    ggplot2,
+    htmlwidgets,
+    patchwork,
     purrr,
     rlang,
     tidyr

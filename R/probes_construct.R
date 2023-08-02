@@ -60,9 +60,10 @@ probes_read_vep_txt <- function(txt, transcript_type = c("ensembl", 'refseq'), e
 
 #' Construct Probes
 #'
-#' @param mutations (data.frame)
+#' @param df_mut data frame of mutations (produced from probes_read_vep_txt) (data.frame)
 #' @param probe_type which type of probe sequence to return (mRNA_no_U, mRNA)
 #' @param ensembl biomart from which to fetch transcript (cDNA)  sequences. Define using [load_biomart()]
+#' @param probe_size How large should WT and Mutant probes be (number)
 #'
 #' @return data.frame describing 1 probe per mutation-transcript isoform combination.
 #' Try piping into probes_collapse_duplicates to cleanup

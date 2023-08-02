@@ -12,11 +12,13 @@ probes_construct(
 )
 }
 \arguments{
+\item{df_mut}{data frame of mutations (produced from probes_read_vep_txt) (data.frame)}
+
 \item{ensembl}{biomart from which to fetch transcript (cDNA)  sequences. Define using \code{\link[=load_biomart]{load_biomart()}}}
 
-\item{probe_type}{which type of probe sequence to return (mRNA_no_U, mRNA)}
+\item{probe_size}{How large should WT and Mutant probes be (number)}
 
-\item{mutations}{(data.frame)}
+\item{probe_type}{which type of probe sequence to return (mRNA_no_U, mRNA)}
 }
 \value{
 data.frame describing 1 probe per mutation-transcript isoform combination.
