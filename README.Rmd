@@ -110,6 +110,19 @@ probes_read_vep_txt("path_to_vep_text", ensembl=ensembl) |> # Read in Probe data
   
 ```
 
+### 4 \| Build probes from fusion sequences
+
+Start with a data.frame with the following columns
+
+-   Fusion_Sequence (cDNA nucleotide sequence with breakpoint indicated
+    by '\|')
+
+-   GenesInvolved
+
+```{r, eval=FALSE}
+probes_construct_fusion_sequence
+```
+
 ## FAQ
 
 **Q: My mutation may affect multiple isoforms? How do i handle this?**

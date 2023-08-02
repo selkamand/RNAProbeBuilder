@@ -34,7 +34,6 @@ query_transcript_sequence_scalar_api <- function(transcript_id, ensembl = defaul
   assertions::assert_string(transcript_id)
   cdna = biomaRt::getSequence(id = transcript_id, type = "ensembl_transcript_id_version", mart = ensembl, seqType = "cdna")
   #utr3prime = biomaRt::getSequence(id = transcript_id, type = "ensembl_transcript_id", mart = ensembl, seqType = "3utr")
-
   seq_cdna = cdna[[1]]
 
   if(length(seq_cdna) == 0) seq <- NA_character_

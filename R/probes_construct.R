@@ -61,7 +61,7 @@ probes_read_vep_txt <- function(txt, transcript_type = c("ensembl", 'refseq'), e
 #' Construct Probes
 #'
 #' @param mutations (data.frame)
-#' @param probe_type which type of probe sequence to return (cDNA, mRNA, mRNA_no_U)
+#' @param probe_type which type of probe sequence to return (mRNA_no_U, mRNA)
 #' @param ensembl biomart from which to fetch transcript (cDNA)  sequences. Define using [load_biomart()]
 #'
 #' @return data.frame describing 1 probe per mutation-transcript isoform combination.
@@ -92,7 +92,7 @@ probes_read_vep_txt <- function(txt, transcript_type = c("ensembl", 'refseq'), e
 #'
 #'Dmut = Downstream bases (mutant probe) = floor((Ts-L)/2)
 #'
-probes_construct <- function(df_mut, ensembl, probe_size = 51, probe_type = c('cDNA', 'mRNA','mRNA_no_U')){
+probes_construct <- function(df_mut, ensembl, probe_size = 51, probe_type = c('mRNA_no_U', 'mRNA')){
 
   # Assertions
   assertions::assert_dataframe(df_mut)
@@ -102,10 +102,9 @@ probes_construct <- function(df_mut, ensembl, probe_size = 51, probe_type = c('c
   #assertions::assert_character_vector(mutations)
   assertions::assert_number(probe_size)
   #assertions::assert_number(bp_downstream)
-  assertions::assert_subset(probe_type, c('mRNA','mRNA_no_U', 'cDNA'))
+  assertions::assert_subset(probe_type, c('mRNA','mRNA_no_U'))
 
   probe_type <- rlang::arg_match(probe_type)
-  assertions::assert(probe_type == 'cDNA', msg = 'only cDNA probe types are currently supported')
 
 
   # Convert mutations to dataframe
@@ -173,7 +172,11 @@ probes_construct <- function(df_mut, ensembl, probe_size = 51, probe_type = c('c
     cli::cli_rule()
   }
 
-
+  # Add U if probe_type = mRNA
+  if(probe_type == "mRNA"){
+    df_mut[["probe_wt_seq"]] <- gsub(x=df_mut[["probe_wt_seq"]], pattern = "T", replacement = "U")
+    df_mut[["probe_mut_seq"]]  <- gsub(x=df_mut[["probe_wt_seq"]], pattern = "T", replacement = "U")
+  }
 
   return(df_mut)
 
@@ -186,11 +189,6 @@ probes_construct <- function(df_mut, ensembl, probe_size = 51, probe_type = c('c
   # Fail 1: start < 1
   # Fail 2: end > length of isoform
   # Fail 3: low sequence complexity
-
-  # Convert to tibble
-  df_mut <- dplyr::tibble(df_mut)
-
-  return(df_mut)
 }
 
 
@@ -204,7 +202,6 @@ hgvs_to_dataframe <- function(mutations, must_be_cdna = TRUE, exclude_raw = TRUE
   df_mutations[['type']] = sub(x = mutations, pattern = "^.*?:([cgpnr])\\.\\*?.*$", "\\1")
   df_mutations[['ref']] = sub(x = mutations, pattern = "^.*([ACGTacgt]+)>.*$", "\\1")
   df_mutations[['alt']] = sub(x = mutations, pattern = "^.*>(.*)$", "\\1")
-
 
   # Deal with Duplicates
   df_mutations[['ref']] <- ifelse(df_mutations[['ref']] == mutations & grepl(x=mutations, pattern = "[0-9]+dup"), yes = "original", df_mutations[['ref']])
@@ -318,6 +315,9 @@ probes_collapse_duplicates <- function(df_mut){
     df_redundant_variants <- df_mut[df_mut[['nVariants']] > 1, c('VarID', 'Transcript', 'cDNA_position', 'ref', 'alt', 'probe_wt_seq')]
   }
 
+  # Annotate with alignment visualisation
+  df_mut <- probes_annotate_alignment_visualisations(df_mut)
+
   return(df_mut)
 }
 
@@ -328,9 +328,17 @@ probes_longform_with_ids <- function(df_mut){
         probe_class == "probe_wt_seq" ~ "WT",
         probe_class == "probe_mut_seq" ~ "MUTANT",
         .default = "PROBLEM!!"),
-      ID = paste(VarID, probe_class, Transcripts, sep = " | ")
+      ID = paste(VarID, probe_class, mut_type, Transcripts, sep = " | ")
     )
 }
+
+
+probes_annotate_alignment_visualisations <- function(df_mut){
+  df_mut[["alignment"]] <- gg_visualise_alignment(seq1 = df_mut[["probe_wt_seq"]], seq2 = df_mut[["probe_mut_seq"]], seq1names = "WT", seq2names = "MUTANT", titles = df_mut[["VarID"]])
+  return(df_mut)
+}
+
+
 
 #' Write outputs
 #'
@@ -342,7 +350,7 @@ probes_longform_with_ids <- function(df_mut){
 #' @export
 #'
 probes_write_output <- function(df_mut, outdir, prefix = "probes"){
-  df_mut <- probes_longform_with_ids(df_mut)
+  df_mut_long <- probes_longform_with_ids(df_mut)
 
   # Create Dir
   if(!dir.exists(outdir)) {
@@ -354,8 +362,8 @@ probes_write_output <- function(df_mut, outdir, prefix = "probes"){
   cli::cli_alert_info('Writing to {path_fasta}')
   file.create(path_fasta)
 
-  sequences <- df_mut[['probe_sequence']]
-  names(sequences) <- df_mut[['ID']]
+  sequences <- df_mut_long[['probe_sequence']]
+  names(sequences) <- df_mut_long[['ID']]
 
   purrr::walk(seq_along(sequences), .f = function(i){
     seq = sequences[i]
@@ -367,11 +375,81 @@ probes_write_output <- function(df_mut, outdir, prefix = "probes"){
 
 
   # Create Output Table
+  # Drop list columns
+  df_mut_long_writable <- df_mut_long[,vapply(df_mut_long, Negate(is.list), FUN.VALUE = logical(1)),]
   path_info = paste0(outdir, "/", prefix, '.csv')
   cli::cli_alert_info('Writing to {path_info}')
+  write.csv(df_mut_long_writable, file = path_info, row.names = FALSE)
 
-  write.csv(df_mut, file = path_info, row.names = FALSE)
+  # Create Output Pairwise Alignment
+  prefix_html_alignments <- paste0(outdir, "/", prefix)
+  cli::cli_alert_info('Writing to {prefix_html_alignments}.html')
 
+  probe_generate_alignment_html(gglist = df_mut[["alignment"]], median_size = median(df_mut[['probe_mut_length']]), prefix = prefix_html_alignments)
 
-  return(invisible(df_mut))
+  return(invisible(df_mut_long))
 }
+
+#' Fusion Sequence to Probe
+#'
+#' @param fusion a vector of strings where each string is a fusion sequence with breakpoint indicated using |. Should be in cDNA space
+#' @param probe_size how large should the probe be (in bp)
+#' @return data.frame describing probes
+#' @export
+#'
+probes_construct_fusion_sequence <- function(fusion, probe_size = 51){
+  assertions::assert_character(fusion)
+  assertions::assert_number(probe_size)
+  purrr::map_chr(fusion, fusion_sequence_scalar, probe_size = probe_size)
+}
+
+fusion_sequence_scalar <- function(fusion, probe_size = 51){
+  #assertions::assert(!is.null(names(fusion)))
+  ls_splitseq <- strsplit(fusion, "\\|")
+  vec_splitseq <- unlist(ls_splitseq)
+  upper_size = ceiling(probe_size/2)
+  lower_size = floor(probe_size/2)
+  assertions::assert(nchar(vec_splitseq[1]) >= upper_size, msg = "Upstream sequence in fusion is not long enough for probes to be constructed:\f {fusion_sequence}")
+  assertions::assert(nchar(vec_splitseq[2]) >= lower_size, msg = "Downstream sequence in fusion is not long enough for probes to be constructed:\f {fusion_sequence}")
+
+  upper_seq <- substr(vec_splitseq[1], start = nchar(vec_splitseq[1]) - upper_size + 1, stop = nchar(vec_splitseq[1]))
+  lower_seq <- substr(vec_splitseq[2], start = 1, stop = lower_size)
+  probe_seq = paste0(upper_seq, lower_seq)
+}
+
+#' Write fusion output
+#'
+#' @param fusion_sequences result of running [probes_construct_fusion_sequence()]
+#' @param outdir  Output directory
+#' @param prefix Prefix for output files
+#'
+#' @return invisibly returns input fusion sequences
+#' @export
+probes_write_fusion_output <- function(fusion_sequences, outdir, prefix = "fusion_probes"){
+  fusion_names <- names(fusion_sequences)
+  if(is.null(fusion_names))
+    fusion_names <- seq_along(fusion_sequences)
+
+  # Create Dir
+  if(!dir.exists(outdir)) {
+    dir.create(outdir)
+  }
+
+  # Create Fasta File
+  path_fasta = paste0(outdir, "/", prefix, '.fasta')
+  cli::cli_alert_info('Writing to {path_fasta}')
+  file.create(path_fasta)
+
+  sequences <- fusion_sequences
+  names(sequences) <- fusion_names
+
+  purrr::walk(seq_along(sequences), .f = function(i){
+    seq = sequences[i]
+    seqname = names(sequences)[i]
+
+    write(paste0('> ', seqname), file = path_fasta, append = TRUE)
+    write(seq, file = path_fasta, append = TRUE)
+  })
+
+}
+

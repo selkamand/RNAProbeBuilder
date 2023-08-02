@@ -3,5 +3,7 @@
 export(load_biomart)
 export(probes_collapse_duplicates)
 export(probes_construct)
+export(probes_construct_fusion_sequence)
 export(probes_read_vep_txt)
+export(probes_write_fusion_output)
 export(probes_write_output)
