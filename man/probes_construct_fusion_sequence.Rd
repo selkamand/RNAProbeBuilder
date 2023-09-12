@@ -7,7 +7,7 @@
 probes_construct_fusion_sequence(fusion, probe_size = 51)
 }
 \arguments{
-\item{fusion}{a vector of strings where each string is a fusion sequence with breakpoint indicated using |. Should be in cDNA space}
+\item{fusion}{a vector of strings where each string is a fusion sequence with breakpoint indicated using |. Should be in mRNA space (5' -> 3')}
 
 \item{probe_size}{how large should the probe be (in bp)}
 }

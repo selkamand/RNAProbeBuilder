@@ -393,7 +393,7 @@ probes_write_output <- function(df_mut, outdir, prefix = "probes"){
 
 #' Fusion Sequence to Probe
 #'
-#' @param fusion a vector of strings where each string is a fusion sequence with breakpoint indicated using |. Should be in cDNA space
+#' @param fusion a vector of strings where each string is a fusion sequence with breakpoint indicated using |. Should be in mRNA space (5' -> 3')
 #' @param probe_size how large should the probe be (in bp)
 #' @return data.frame describing probes
 #' @export

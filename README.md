@@ -15,7 +15,13 @@ status](https://www.r-pkg.org/badges/version/RNAProbeBuilder)](https://CRAN.R-pr
 
 RNAProbeBuilder constructs probes for targeting RNA mutations. At least
 two probes are generated per mutation, one targeted to the mutant, one
-targeting wildtype sequences. Probes are all built in cDNA space.
+targeting wildtype sequences. This workflow will show you how to convert
+**a VCF of genomic mutations** -\> **mRNA probes** (e.g. for use with
+Visium platform)
+
+Probes are all built in mRNA space, and by default with ‘U’s replaced
+with ’T’. You can configure the output based on the \`probe_type\`
+argument).
 
 **WARNING**: This package is in *very early development* and not ready
 for use yet!!!
@@ -71,7 +77,7 @@ This downloaded text file will serve as the input to
 
 ### 2 \| Connect to biomaRt
 
-This will let us pull the cDNA sequences we need to construct probes
+This will let us pull the mRNA sequences we need to construct probes
 
 ``` r
 # If varants are GRCh37 / hg19:
@@ -88,11 +94,24 @@ probes_read_vep_txt("path_to_vep_text", ensembl=ensembl) |> # Read in Probe data
   probes_construct( # Constructs 1 probe for each mrna mutation
     bp_upstream = 20, 
     bp_downstream = 20,
-    probe_type = "cDNA" # only cDNA supported for now
+    probe_type = "mRNA_no_U" # only mRNA supported for now
   )  |>
-  probes_collapse_duplicates() |> # Collapse probes 
+  probes_collapse_duplicates() |> # Collapse duplicate probes
   probes_write_output(outdir = "Outdir", prefix = "myprobes") # Write FASTA / QC files
   
+```
+
+### 4 \| Build probes from fusion sequences
+
+Currently we don’t support end-end fusion breakpoint -\> mRNA sequence
+creation. However, we provide some utilities to simplify the process.
+Start with the following input:
+
+- Fusion_Sequence (mRNA nucleotide sequence with breakpoint indicated by
+  ‘\|’)
+
+``` r
+probes_construct_fusion_sequence("ACTGACCGAC|TTTCTCTCTACATC", probe_size = 10)
 ```
 
 ## FAQ
@@ -114,3 +133,23 @@ only those isoforms
 
 A: Currently just SNVs and Dups. No Indels, fusions or large deletions
 supported
+
+**Q: What type of sequences are output? mRNA? cDNA? etc?**
+
+A: By default 5’ -\> 3’ mRNA sequences with Uracils replaced by Thymines
+are supplied (mRNA_no_U)
+
+![](inst/figs/Sequence_Output_Type)
+
+**Q: Why don’t you support cDNA output?**
+
+A: cDNA can have different definitions:
+
+1.  A synthetic sequence transcribed from an mRNA molecule, this ‘cDNA’
+    is complementary to the mRNA
+2.  The mRNA molecule itself with Uracils replaced by Thymines
+    (identical to **mRNA_no_U**)
+
+Due to this ambiguity we don’t support an ‘explicit’ cDNA output. If you
+want ‘cDNA’, we advise you to convert directly from **mRNA_no_U** based
+on which type of ‘cDNA’ you’re after.
