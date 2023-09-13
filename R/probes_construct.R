@@ -131,10 +131,10 @@ probes_construct <- function(df_mut, ensembl, probe_size = 51, probe_type = c('m
 
   # Calculate how many upstream and downstream bases there should be based on total probe
   # size and mutation length
-  df_mut['bp_upstream_wt'] = ceiling((probe_size - 1)/2)
-  df_mut['bp_downstream_wt'] = floor((probe_size - 1)/2)
-  df_mut['bp_upstream_mut'] = ceiling((probe_size - df_mut[['cDNA_mut_length']])/2)
-  df_mut['bp_downstream_mut'] = floor((probe_size - df_mut[['cDNA_mut_length']])/2)
+  df_mut['bp_upstream_wt'] = floor((probe_size - 1)/2)
+  df_mut['bp_downstream_wt'] = ceiling((probe_size - 1)/2)
+  df_mut['bp_upstream_mut'] = floor((probe_size - df_mut[['cDNA_mut_length']])/2)
+  df_mut['bp_downstream_mut'] = ceiling((probe_size - df_mut[['cDNA_mut_length']])/2)
 
   # Add start-end coords for probe
   df_mut[['probe_wt_start']]  <- df_mut[['cDNA_mut_start']] - df_mut[['bp_upstream_wt']]
@@ -393,6 +393,10 @@ probes_write_output <- function(df_mut, outdir, prefix = "probes"){
 
 #' Fusion Sequence to Probe
 #'
+#' Split fusion strings into a mutant 'probe' using based on '|' breakpoint.
+#'
+#' If probe size is odd - centered bases will be the first base of the downstream fusion partner
+#'
 #' @param fusion a vector of strings where each string is a fusion sequence with breakpoint indicated using |. Should be in mRNA space (5' -> 3')
 #' @param probe_size how large should the probe be (in bp)
 #' @return data.frame describing probes
@@ -408,10 +412,11 @@ fusion_sequence_scalar <- function(fusion, probe_size = 51){
   #assertions::assert(!is.null(names(fusion)))
   ls_splitseq <- strsplit(fusion, "\\|")
   vec_splitseq <- unlist(ls_splitseq)
-  upper_size = ceiling(probe_size/2)
-  lower_size = floor(probe_size/2)
-  assertions::assert(nchar(vec_splitseq[1]) >= upper_size, msg = "Upstream sequence in fusion is not long enough for probes to be constructed:\f {fusion_sequence}")
-  assertions::assert(nchar(vec_splitseq[2]) >= lower_size, msg = "Downstream sequence in fusion is not long enough for probes to be constructed:\f {fusion_sequence}")
+  upper_size = floor(probe_size/2)
+  lower_size = ceiling(probe_size/2)
+
+  assertions::assert(nchar(vec_splitseq[1]) >= upper_size, msg = "Upstream sequence in fusion is not long enough for probes to be constructed:\f {fusion}")
+  assertions::assert(nchar(vec_splitseq[2]) >= lower_size, msg = "Downstream sequence in fusion is not long enough for probes to be constructed:\f {fusion}")
 
   upper_seq <- substr(vec_splitseq[1], start = nchar(vec_splitseq[1]) - upper_size + 1, stop = nchar(vec_splitseq[1]))
   lower_seq <- substr(vec_splitseq[2], start = 1, stop = lower_size)
