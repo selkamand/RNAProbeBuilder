@@ -44,11 +44,11 @@ Ts = Total probe size = defined by probe_size
 
 L = mutation length (SNV = 1)
 
-Uwt = Upstream bases (wild type) = ceil((Ts - 1)/2)
+Uwt = Upstream bases (wild type) = floor((Ts - 1)/2)
 
-Dwt = Downstream bases (wild type) = floor((Ts - 1)/2)
+Dwt = Downstream bases (wild type) = ceiling((Ts - 1)/2)
 
-Umut = Upstream bases (mutant probe) = ceil((Ts-L)/2)
+Umut = Upstream bases (mutant probe) = floor((Ts-L)/2)
 
-Dmut = Downstream bases (mutant probe) = floor((Ts-L)/2)
+Dmut = Downstream bases (mutant probe) = ceiling((Ts-L)/2)
 }

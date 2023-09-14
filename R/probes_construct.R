@@ -85,13 +85,13 @@ probes_read_vep_txt <- function(txt, transcript_type = c("ensembl", 'refseq'), e
 #'
 #'L = mutation length (SNV = 1)
 #'
-#'Uwt = Upstream bases (wild type) = ceil((Ts - 1)/2)
+#'Uwt = Upstream bases (wild type) = floor((Ts - 1)/2)
 #'
-#'Dwt = Downstream bases (wild type) = floor((Ts - 1)/2)
+#'Dwt = Downstream bases (wild type) = ceiling((Ts - 1)/2)
 #'
-#'Umut = Upstream bases (mutant probe) = ceil((Ts-L)/2)
+#'Umut = Upstream bases (mutant probe) = floor((Ts-L)/2)
 #'
-#'Dmut = Downstream bases (mutant probe) = floor((Ts-L)/2)
+#'Dmut = Downstream bases (mutant probe) = ceiling((Ts-L)/2)
 #'
 probes_construct <- function(df_mut, ensembl, probe_size = 51, probe_type = c('mRNA_no_U', 'mRNA')){
 

@@ -15,5 +15,8 @@ probes_construct_fusion_sequence(fusion, probe_size = 51)
 data.frame describing probes
 }
 \description{
-Fusion Sequence to Probe
+Split fusion strings into a mutant 'probe' using based on '|' breakpoint.
+}
+\details{
+If probe size is odd - centered bases will be the first base of the downstream fusion partner
 }
