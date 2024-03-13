@@ -76,7 +76,7 @@ query_transcript_sequence_api <- function(transcript_id, ensembl = default_bioma
 #'
 #'   vcf <- vcfR::read.vcfR(vcf, verbose = FALSE)
 #'
-#'   browser()
+#'
 #'   df <- data.frame(
 #'     VarID = vcfR::extract.info(vcf, element = "VCF"),
 #'     HGVSg = vcfR::extract.info(vcf, element = "HGVSg"),

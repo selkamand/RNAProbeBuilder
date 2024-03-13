@@ -90,14 +90,14 @@ ensembl <- load_biomart(GRCh = "38")
 ### 3 \| Build probes from VCF
 
 ``` r
-probes_read_vep_txt("path_to_vep_text", ensembl=ensembl) |> # Read in Probe data
+probes_read_vep_txt("path_to_vep_text") |> # Read in Probe data
   probes_construct( # Constructs 1 probe for each mrna mutation
-    bp_upstream = 20, 
-    bp_downstream = 20,
+    ensembl = ensembl,
+    probe_size = 51,
     probe_type = "mRNA_no_U" # only mRNA supported for now
   )  |>
   probes_collapse_duplicates() |> # Collapse duplicate probes
-  probes_write_output(outdir = "Outdir", prefix = "myprobes") # Write FASTA / QC files
+  probes_write_output(outdir = "outdir", prefix = "myprobes") # Write FASTA / QC files
   
 ```
 

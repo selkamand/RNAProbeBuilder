@@ -34,7 +34,7 @@ probe_generate_alignment_html <- function(gglist, prefix, median_size = 51, retu
 
   ggpatch <- patchwork::wrap_plots(gglist, ncol = 1)
 
-  gginterpatch <- ggiraph::ggiraph(ggobj = ggpatch, height_svg = 1.5 * length(gglist), width_svg = median_size * 0.15)
+  gginterpatch <- ggiraph::girafe(ggobj = ggpatch, height_svg = 1.5 * length(gglist), width_svg = median_size * 0.15)
 
   if(return_interactive_patch){
     return(gginterpatch)
@@ -75,8 +75,6 @@ gg_visualise_alignment_scalar <- function(seq1, seq2, seq1name="subject", seq2na
   df[["data_id"]] <- df[["position"]]
 
   df['different'] <- df[['subject']] != df[['pattern']]
-
-  #browser()
 
   # Pivot Longer
   df <- df |>
@@ -137,7 +135,7 @@ gg_visualise_alignment_scalar <- function(seq1, seq2, seq1name="subject", seq2na
     ggplot2::ylab(NULL)
 
   if(interactive){
-    ggiraph = ggiraph::ggiraph(ggobj=gg, width_svg = width_svg, height_svg = height_svg)
+    ggiraph = ggiraph::girafe(ggobj=gg, width_svg = width_svg, height_svg = height_svg)
     return(ggiraph)
   }
 

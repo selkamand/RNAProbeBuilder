@@ -16,7 +16,6 @@ probes_read_vep_txt <- function(txt, transcript_type = c("ensembl", 'refseq'), e
   df_vep <- read.csv(txt, header = TRUE, sep ="\t")
   df_vep <- dplyr::as_tibble(df_vep)
 
-  #browser()
   df <- df_vep |>
     dplyr::select(VarID = `X.Uploaded_variation`, Gene, Location, Allele, HGVSc, Transcript = Feature, Feature_type, cDNA_position, CDS_position)
 
