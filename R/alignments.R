@@ -76,8 +76,6 @@ gg_visualise_alignment_scalar <- function(seq1, seq2, seq1name="subject", seq2na
 
   df['different'] <- df[['subject']] != df[['pattern']]
 
-  #browser()
-
   # Pivot Longer
   df <- df |>
     tidyr::pivot_longer(c(pattern, subject), names_to = "seqname", values_to = "sequence") |>
